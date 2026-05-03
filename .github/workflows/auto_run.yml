@@ -1,4 +1,4 @@
-name: 每小时定时运行
+name: Heatmap Update (uv)
 
 on:
   schedule:
@@ -6,21 +6,22 @@ on:
   workflow_dispatch:
 
 jobs:
-  run-task:
+  run-script:
     runs-on: ubuntu-latest
     steps:
-      - name: 拉取代码
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: 安装 uv
+      - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
           python-version: "3.11"
 
-      - name: 安装依赖
+      - name: Install dependencies
         run: uv sync --frozen
 
-      - name: 运行程序
+      - name: Run script
         env:
-          YOUR_ENV_VAR: ${{ secrets.YOUR_ENV_VAR }}
+          USERNAME: ${{ secrets.USERNAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
         run: uv run python main.py
