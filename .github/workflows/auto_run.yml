@@ -1,0 +1,26 @@
+name: 每小时定时运行
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+jobs:
+  run-task:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 安装 uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.11"
+
+      - name: 安装依赖
+        run: uv sync --frozen
+
+      - name: 运行程序
+        env:
+          YOUR_ENV_VAR: ${{ secrets.YOUR_ENV_VAR }}
+        run: uv run python main.py
