@@ -147,9 +147,9 @@ def updata_codemao(img_url):
                     f"https://api-creation.codemao.cn/kitten/r2/work/{work}/publish",
                     json={
                         "work_id": work,
-                        "name": f"热点图({get_user_id})",
-                        "description": "Codemao热点图",
-                        "operation": "Codemao热点图",
+                        "name": f"‌",
+                        "description": "‌",
+                        "operation": "‌",
                         "labels": [],
                         "cover_url": img_url[works_id.index(work)],
                         "fork_enable": 0,
