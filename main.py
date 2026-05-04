@@ -67,11 +67,9 @@ def get_heatmap_data():
         work_items = works_json.get("items", [])
         file_user_data_dict = get_user_data_json()
 
-        # ✅ 修复：用户ID不存在就自动初始化
         if get_user_id not in file_user_data_dict:
             file_user_data_dict[get_user_id] = []
 
-        # ✅ 修复：写入新作品
         for work in work_items:
             work_id = work["id"]
             exists = any(
