@@ -10,3 +10,4 @@ wheels/
 .venv
 
 img.png
+split_images/*

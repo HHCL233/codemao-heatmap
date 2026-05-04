@@ -1,8 +1,8 @@
 from PIL import Image, ImageDraw, ImageFont
-import random
 import requests
 import os
 from datetime import datetime, timedelta
+import json
 
 works_id = ["280193118", "313822769", "299835772", "305310185"]
 get_user_id = "157090347"
@@ -12,6 +12,7 @@ mao_acount = os.environ["ACCOUNT"]
 mao_password = os.environ["PASSWORD"]
 canvas = Image.new("RGB", (140 * 4, 140), color=(255, 255, 255))
 draw = ImageDraw.Draw(canvas)
+file_user_data_dict = {}
 
 
 def split_image(image_path, rows, cols, save_dir="split_images"):
@@ -41,7 +42,19 @@ def is_same_day(timestamp1, timestamp2):
     return date1 == date2
 
 
+def get_user_data_json():
+    with open("user_data.json", mode="r", encoding="utf-8") as f:
+        data_dict = json.load(f)
+    return data_dict
+
+
+def write_user_data_json(content):
+    with open("user_data.json", "w", encoding="utf-8") as f:
+        json.dump(content, f, ensure_ascii=False, indent=4)
+
+
 def get_heatmap_data():
+    global file_user_data_dict
     try:
         rows = 8
         cols = 40
@@ -52,14 +65,29 @@ def get_heatmap_data():
         )
         works_json = works_data.json()
         work_items = works_json.get("items", [])
+        file_user_data_dict = get_user_data_json()
 
+        # ✅ 修复：用户ID不存在就自动初始化
+        if get_user_id not in file_user_data_dict:
+            file_user_data_dict[get_user_id] = []
+
+        # ✅ 修复：写入新作品
+        for work in work_items:
+            work_id = work["id"]
+            exists = any(
+                item["id"] == work_id for item in file_user_data_dict[get_user_id]
+            )
+            if not exists:
+                file_user_data_dict[get_user_id].append(work)
+
+        # 统计逻辑
         for col in range(cols):
             for row in range(rows):
                 current_index = (cols - 1 - col) * rows + (rows - 1 - row)
                 past_day = datetime.now() - timedelta(days=current_index)
                 current_commit = 0
 
-                for work in work_items:
+                for work in file_user_data_dict[get_user_id]:
                     if is_same_day(int(past_day.timestamp()), work["publish_time"]):
                         current_commit += 1
 
@@ -74,6 +102,8 @@ def get_heatmap_data():
                 else:
                     data[col][row] = 4
 
+        write_user_data_json(file_user_data_dict)
+        print("已保存user_data")
         return data
 
     except Exception as e:
